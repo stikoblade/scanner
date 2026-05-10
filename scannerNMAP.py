@@ -14,14 +14,7 @@ class NetworkScanner:
 
     async def run_nmap(self) -> str:
         """Запуск Nmap как асинхронного подпроцесса с выводом в XML."""
-        args = [
-            "-n",              # Без DNS-резолвинга для скорости
-            "-sV",             # Определение версий
-            "-O",              # Определение ОС
-            "-p", self.ports,
-            "-oX", "-",        # Вывод XML в stdout
-            "--open"           # Только открытые порты
-        ]
+        args = ["-n", "-T4", "-F", "--version-light", targets]
         
         if self.nse_scripts:
             args.extend(["--script", self.nse_scripts])
