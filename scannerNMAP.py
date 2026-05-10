@@ -86,10 +86,10 @@ def save_report(data: List[Dict], format: str):
         print(f"[+] JSON report saved to {filename}.json")
     else:
         with open(f"{filename}.md", 'w') as f:
-            f.write(f"# Network Scan Report - {datetime.now()}\n\n")
+            f.write(f"Network Scan Report - {datetime.now()}\n\n")
             for host in data:
-                f.write(f"### Host: {host['ip']} ({host['os']})\n")
-                f.write("| Port | Service | Version |\n|---|---|---|\n")
+                f.write(f"Host: {host['ip']} ({host['os']})\n")
+                f.write("| Port | Service | Version |\n|-----|-----|------|\n")
                 for p in host['ports']:
                     f.write(f"| {p['port']} | {p['name']} | {p['product']} {p['version']} |\n")
                 f.write("\n")
