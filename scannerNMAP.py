@@ -13,18 +13,7 @@ class NetworkScanner:
         self.results = []
 
     async def run_nmap(self) -> str:
-        """Запуск Nmap как асинхронного подпроцесса с выводом в XML."""
-        args = [
-            "-n",              # Без DNS (быстро)
-            "-T4",             # Агрессивный тайминг (быстро)
-            "-sV",             # Определение версий
-            "--version-light", # Облегченное определение версий (быстро)
-            "-O",              # Определение ОС
-            "-p", self.ports,
-            "-oX", "-",        # Вывод XML в stdout
-            "--open",          # Только открытые порты
-            self.targets       # Используем self.targets, так как мы внутри класса
-        ]
+        args = [ "-n", "-T4", "-sV", "--version-light", "-O", "-p", self.ports, "-oX", "-", "--open", self.targets]
         
         if self.nse_scripts:
             # Вставляем скрипты перед целью (хороший тон)
@@ -64,34 +53,24 @@ class NetworkScanner:
                 "os": "Unknown",
                 "ports": []
             }
-
-            # Определение ОС
-            os_match = host.find('os/osmatch')
+            os_match = host.find('os/osmatch') # Определение ОС
             if os_match is not None:
                 host_info["os"] = os_match.get('name')
 
-            # Сбор портов и сервисов
-            for port in host.findall('.//port'):
+            for port in host.findall('.//port'):  # Сбор портов
                 portid = port.get('portid')
                 state = port.find('state').get('state')
-                service = port.find('service')
-                
+                service = port.find('service')          
                 service_info = {
-                    "port": portid,
-                    "state": state,
-                    "name": service.get('name') if service is not None else "unknown",
-                    "product": service.get('product', 'N/A'),
-                    "version": service.get('version', 'N/A'),
+                    "port": portid, "state": state, "name": service.get('name') if service is not None else "unknown",
+                    "product": service.get('product', 'N/A'), "version": service.get('version', 'N/A'),
                     "extrainfo": service.get('extrainfo', 'N/A')
                 }
                 host_info["ports"].append(service_info)
-
-            scan_results.append(host_info)
-        
+            scan_results.append(host_info)      
         return scan_results
 
     async def execute(self):
-        """Основной цикл выполнения."""
         try:
             raw_xml = await self.run_nmap()
             self.results = self.parse_xml(raw_xml)
@@ -99,7 +78,6 @@ class NetworkScanner:
         except Exception as e:
             print(f"[!] Critical Error: {e}")
             return None
-
 def save_report(data: List[Dict], format: str):
     filename = f"scan_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
     if format == 'json':
@@ -107,7 +85,6 @@ def save_report(data: List[Dict], format: str):
             json.dump(data, f, indent=4)
         print(f"[+] JSON report saved to {filename}.json")
     else:
-        # Упрощенный Markdown
         with open(f"{filename}.md", 'w') as f:
             f.write(f"# Network Scan Report - {datetime.now()}\n\n")
             for host in data:
