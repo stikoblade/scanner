@@ -108,7 +108,8 @@ async def main():
     results = await scanner.execute()
 
     if results:
-        save_report(results, args.format)
+        save_report(results, 'json')
+        save_report(results, 'md')
 
 if __name__ == "__main__":
     asyncio.run(main())
