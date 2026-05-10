@@ -21,15 +21,15 @@ class NetworkScanner:
             "--version-light", # Облегченное определение версий (быстро)
             "-O",              # Определение ОС
             "-p", self.ports,
-            "-oX", "-",        # Вывод XML
-            "--open",          # Только открытые
-            targets            # <--- Вот тут проверь! 
+            "-oX", "-",        # Вывод XML в stdout
+            "--open",          # Только открытые порты
+            self.targets       # Используем self.targets, так как мы внутри класса
         ]
         
         if self.nse_scripts:
-            args.extend(["--script", self.nse_scripts])
-            
-        args.append(self.targets)
+            # Вставляем скрипты перед целью (хороший тон)
+            args.insert(-1, "--script")
+            args.insert(-1, self.nse_scripts)
 
         print(f"[*] Starting scan: nmap {' '.join(args)}")
         
