@@ -13,7 +13,7 @@ class NetworkScanner:
         self.results = []
 
     async def run_nmap(self) -> str:
-        args = [ "-n", "-T4", "-sV", "--version-light", "-O", "-p", self.ports, "-oX", "-", "--open", self.targets]
+        args = ["-n", "-p", self.ports, "-oX", "-", self.targets]
         
         if self.nse_scripts:
             # Вставляем скрипты перед целью (хороший тон)
