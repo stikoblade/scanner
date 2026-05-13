@@ -22,12 +22,12 @@ class NetworkScanner:
 
         print(f"[*] Starting scan: nmap {' '.join(args)}")
         
-        process = await asyncio.create_subprocess_exec(
+        process = await asyncio.create_subprocess_exec(             # асинхронное создание процесса, чтоб основной цикл не блокировался
             'nmap', *args,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
-
+        # Ожидание завершения работы процесса и чтение данных из пайпов
         stdout, stderr = await process.communicate()
 
         if process.returncode != 0:
@@ -39,10 +39,10 @@ class NetworkScanner:
         return stdout.decode()
 
     def parse_xml(self, xml_data: str) -> List[Dict[str, Any]]:
-        """Парсинг XML 'на лету' и извлечение ключевых метрик."""
+        """xml в питоновски список"""
         root = ET.fromstring(xml_data)
         scan_results = []
-
+                                        # Обход всех найденных хостов в XML-дереве
         for host in root.findall('host'):
             addr = host.find('address').get('addr') if host.find('address') is not None else "Unknown"
             status = host.find('status').get('state')
@@ -72,8 +72,8 @@ class NetworkScanner:
 
     async def execute(self):
         try:
-            raw_xml = await self.run_nmap()
-            self.results = self.parse_xml(raw_xml)
+            raw_xml = await self.run_nmap()    # Шаг 1: Запуск скана
+            self.results = self.parse_xml(raw_xml)    # Шаг 2: Разбор данных
             return self.results
         except Exception as e:
             print(f"[!] Critical Error: {e}")
@@ -96,7 +96,7 @@ def save_report(data: List[Dict], format: str):
         print(f"[+] Markdown report saved to {filename}.md")
 
 async def main():
-    parser = argparse.ArgumentParser(description="Async DevSecOps Nmap Scanner")
+    parser = argparse.ArgumentParser(description="Async Nmap Scanner")
     parser.add_argument("targets", help="IP range or subnet (e.g., 192.168.1.0/24)")
     parser.add_argument("-p", "--ports", default="22,80,443,445,8080", help="Comma separated ports")
     parser.add_argument("--scripts", help="Nmap scripts (NSE) to run")
